@@ -2,3 +2,5 @@
 node_modules/
 tools/shots/
 *.log
+tools/shots/
+tools/node_modules/

@@ -162,9 +162,10 @@
   $('#drawerClose').addEventListener('click', closeDrawer);
   scrim.addEventListener('click', closeDrawer);
   $('#dForm').addEventListener('click', closeDrawer);
-  $('#dList').addEventListener('click', function (e) { var b = e.target.closest('[data-rm]'); if (b) toggle(b.dataset.rm); });
+  $('#dList').addEventListener('click', function (e) { var b = e.target.closest('[data-rm]'); if (b) { toggle(b.dataset.rm); if (!drawer.contains(document.activeElement)) $('#drawerClose').focus(); } });
   [$('#dWa'), $('#dMail')].forEach(function (a) { a.addEventListener('click', function (e) { if (!items().length) e.preventDefault(); }); });
-  drawer.addEventListener('keydown', function (e) {
+  document.addEventListener('keydown', function (e) {
+    if (!drawer.classList.contains('open')) return;
     if (e.key === 'Escape') { closeDrawer(); return; }
     if (e.key !== 'Tab') return;
     var f = Array.prototype.filter.call(drawer.querySelectorAll('a[href],button'), function (n) { return !n.classList.contains('disabled') && n.offsetParent !== null; });
