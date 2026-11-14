@@ -1,0 +1,10 @@
+{
+  "name": "trivora-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static host + WhatsApp Cloud API enquiry and auto-reply server for Trivora Goods Wholesalers LLC",
+  "main": "index.js",
+  "engines": { "node": ">=18" },
+  "scripts": { "start": "node index.js", "test": "node test/run-tests.js" },
+  "dependencies": { "express": "^4.21.2" }
+}
