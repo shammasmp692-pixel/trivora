@@ -6,7 +6,7 @@ Single-page site (plain HTML/CSS/JS, no build step) plus an optional Node 18+ Ex
 
 ```
 index.html  styles.css  script.js  sitemap.xml  robots.txt
-assets/            logo, leaf motif, products/ (18), clients/ (16)
+assets/            logo, leaf motif, images/products/ (18), clients/ (16)
 server/            Express app (only dependency: express), tests in server/test
 tools/             asset extraction (Python) and Playwright checks (dev only)
 ```

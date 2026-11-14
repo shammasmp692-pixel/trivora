@@ -49,6 +49,9 @@ for (const [w, h, name] of [[1440, 900, 'desktop'], [768, 1024, 'tablet'], [390,
   ok(cols === (w >= 1025 ? 4 : w >= 641 ? 3 : 2), `product grid columns = ${cols}`);
   await page.click('.chip[data-cat="Food & Beverage Supplies"]');
   ok(await page.locator('#grid .pcard').count() === 7, 'category filter -> 7 F&B products');
+  ok(await page.locator('.chip').count() === 9, '9 chips (All + 8 categories)');
+  await page.click('.chip[data-cat="Custom & Branded Items"]');
+  ok(await page.locator('#onreq').isVisible() && await page.locator('#grid .pcard').count() === 0, 'on-request category shows quote panel, no fake products');
   await page.click('.chip[data-cat="All"]');
   await page.fill('#search', 'trolley'); await page.waitForTimeout(300);
   ok(await page.locator('#grid .pcard').count() === 2, 'search "trolley" -> 2 products');
@@ -61,8 +64,10 @@ for (const [w, h, name] of [[1440, 900, 'desktop'], [768, 1024, 'tablet'], [390,
   ok(await page.textContent('#enqCount') === '2', 'enquiry count = 2');
   await page.click('#enqBtn'); await page.waitForTimeout(450);
   ok(await page.locator('#dList li').count() === 2, 'drawer lists 2 items');
+  await page.click('[data-q="1"][data-id="cutlery"]');
+  await page.fill('[data-qin="glassware"]', '12'); await page.keyboard.press('Tab');
   const wa = await page.getAttribute('#dWa', 'href');
-  ok(wa.startsWith('https://wa.me/971525163638?text=') && decodeURIComponent(wa).includes('1. Glassware') && decodeURIComponent(wa).includes('2. Cutlery'), 'WhatsApp link prefilled with list');
+  ok(wa.startsWith('https://wa.me/971525163638?text=') && decodeURIComponent(wa).includes('1. Glassware × 12') && decodeURIComponent(wa).includes('2. Cutlery × 2'), 'WhatsApp link has items with quantities');
   const mail = await page.getAttribute('#dMail', 'href');
   ok(mail.startsWith('mailto:sales@trivorauae.com') && decodeURIComponent(mail).includes('Cutlery'), 'mailto link prefilled');
   await page.screenshot({ path: `${OUT}${name}-drawer.png` });

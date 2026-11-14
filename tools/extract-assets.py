@@ -44,12 +44,12 @@ k = 0
 for ys in r4y:
     for xs in c4x:
         im = render(3, (xs[0], ys[0], xs[1], ys[1]), inset=5)
-        print(names4[k], save_jpg(im, f"assets/products/{names4[k]}.jpg", 720)); k += 1
+        print(names4[k], save_jpg(im, f"assets/images/products/{names4[k]}.jpg", 720)); k += 1
 k = 0
 for ys in r5y:
     for xs in c5x:
         im = render(4, (xs[0], ys[0], xs[1], ys[1]), inset=5)
-        print(names5[k], save_jpg(im, f"assets/products/{names5[k]}.jpg", 720)); k += 1
+        print(names5[k], save_jpg(im, f"assets/images/products/{names5[k]}.jpg", 720)); k += 1
 
 # ---- clients (page 8)
 cx = [(601, 767), (782, 947), (963, 1128), (1144, 1309)]

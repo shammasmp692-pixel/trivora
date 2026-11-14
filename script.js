@@ -12,7 +12,10 @@
     'Housekeeping & Linen Supplies',
     'Food & Beverage Supplies',
     'Lobby & Public Area Supplies',
-    'Cleaning & Janitorial Products'
+    'Cleaning & Janitorial Products',
+    'Back Office & Operational Supplies',
+    'Custom & Branded Items',
+    'Spa, Wellness & Leisure Supplies'
   ];
   // Names are descriptive labels for the photos in the company profile (no specs or prices claimed).
   var PRODUCTS = [
@@ -34,7 +37,7 @@
     { id: 'rope-stanchions', name: 'Rope Stanchions', cat: CATS[3] },
     { id: 'belt-barriers', name: 'Belt Barriers', cat: CATS[3] },
     { id: 'wet-floor-signs', name: 'Wet Floor Signs', cat: CATS[4] }
-  ].map(function (p) { p.img = 'assets/products/' + p.id + '.jpg'; return p; });
+  ].map(function (p) { p.img = 'assets/images/products/' + p.id + '.jpg'; return p; });
 
   var CLIENTS = [
     ['riu', 'RIU Hotels & Resorts'], ['asiana-grand', 'Asiana Grand Hotel'], ['hilton', 'Hilton'],
@@ -48,12 +51,16 @@
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 
   /* ---------- enquiry store ---------- */
-  var selected = [];
+  var selected = [], qty = {};
+  function clampQty(n) { n = parseInt(n, 10); return isNaN(n) || n < 1 ? 1 : Math.min(n, 99999); }
   try {
-    var saved = JSON.parse(sessionStorage.getItem(STORE_KEY) || '[]');
-    selected = saved.filter(function (id) { return PRODUCTS.some(function (p) { return p.id === id; }); });
-  } catch (e) { selected = []; }
-  function persist() { try { sessionStorage.setItem(STORE_KEY, JSON.stringify(selected)); } catch (e) { /* ignore */ } }
+    var saved = JSON.parse(sessionStorage.getItem(STORE_KEY) || '{}');
+    var ids = Array.isArray(saved) ? saved : (saved.ids || []);
+    selected = ids.filter(function (id) { return PRODUCTS.some(function (p) { return p.id === id; }); });
+    selected.forEach(function (id) { qty[id] = clampQty(saved.qty && saved.qty[id]); });
+  } catch (e) { selected = []; qty = {}; }
+  function persist() { try { sessionStorage.setItem(STORE_KEY, JSON.stringify({ ids: selected, qty: qty })); } catch (e) { /* ignore */ } }
+  function line(p) { return p.name + ' × ' + (qty[p.id] || 1); }
   function byId(id) { return PRODUCTS.filter(function (p) { return p.id === id; })[0]; }
   function items() { return selected.map(byId).filter(Boolean); }
 
@@ -95,6 +102,9 @@
   });
 
   function renderProducts() {
+    var onRequest = !query && activeCat !== 'All' && !PRODUCTS.some(function (p) { return p.cat === activeCat; });
+    $('#onreq').hidden = !onRequest;
+    if (onRequest) $('#onreqCat').textContent = activeCat;
     var list = PRODUCTS.filter(function (p) {
       return (activeCat === 'All' || p.cat === activeCat) && (!query || (p.name + ' ' + p.cat).toLowerCase().indexOf(query) > -1);
     });
@@ -104,7 +114,7 @@
         '<div class="pbody"><span class="pcat">' + esc(p.cat) + '</span><h3 class="pname">' + esc(p.name) + '</h3>' +
         '<button type="button" class="add" data-id="' + p.id + '" aria-pressed="' + on + '">' + (on ? '✓ Added' : '+ Add to enquiry') + '</button></div></li>';
     }).join('');
-    emptyEl.hidden = list.length > 0;
+    emptyEl.hidden = list.length > 0 || onRequest;
     countEl.textContent = list.length + (list.length === 1 ? ' product' : ' products');
   }
   grid.addEventListener('click', function (e) {
@@ -113,12 +123,12 @@
   });
   function toggle(id) {
     var i = selected.indexOf(id);
-    if (i > -1) selected.splice(i, 1); else selected.push(id);
+    if (i > -1) { selected.splice(i, 1); delete qty[id]; } else { selected.push(id); qty[id] = 1; }
     persist(); sync();
   }
 
   /* ---------- message builders ---------- */
-  function listText() { return items().map(function (p, i) { return (i + 1) + '. ' + p.name; }).join('\n'); }
+  function listText() { return items().map(function (p, i) { return (i + 1) + '. ' + line(p); }).join('\n'); }
   function enquiryMessage(extra) {
     var m = 'Hello Trivora, I would like to enquire about the following products:\n' + (items().length ? listText() : '(no items selected)');
     if (extra) m += '\n\n' + extra;
@@ -129,19 +139,26 @@
 
   /* ---------- drawer ---------- */
   var drawer = $('#drawer'), scrim = $('#scrim'), lastFocus = null;
+  function refreshLinks() {
+    var l = items(), m = enquiryMessage();
+    $('#dWa').href = waLink(m); $('#dMail').href = mailLink(m);
+    $('#formItems').innerHTML = l.length ? '<ul>' + l.map(function (p) { return '<li>' + esc(line(p)) + '</li>'; }).join('') + '</ul>' : 'None selected. Add products above, or describe your needs in the message.';
+  }
   function sync() {
     $('#enqCount').textContent = selected.length;
     var l = items();
     $('#dList').innerHTML = l.map(function (p) {
       return '<li><img src="' + p.img + '" width="64" height="50" alt=""><span class="nm">' + esc(p.name) + '</span>' +
+        '<span class="qty"><button type="button" data-q="-1" data-id="' + p.id + '" aria-label="Decrease quantity of ' + esc(p.name) + '">−</button>' +
+        '<input type="number" min="1" max="99999" inputmode="numeric" value="' + (qty[p.id] || 1) + '" data-qin="' + p.id + '" aria-label="Quantity of ' + esc(p.name) + '">' +
+        '<button type="button" data-q="1" data-id="' + p.id + '" aria-label="Increase quantity of ' + esc(p.name) + '">+</button></span>' +
         '<button type="button" data-rm="' + p.id + '" aria-label="Remove ' + esc(p.name) + '">Remove</button></li>';
     }).join('');
     $('#dEmpty').hidden = l.length > 0;
     var wa = $('#dWa'), ml = $('#dMail');
-    wa.href = waLink(enquiryMessage()); ml.href = mailLink(enquiryMessage());
+    refreshLinks();
     wa.classList.toggle('disabled', !l.length); ml.classList.toggle('disabled', !l.length);
     wa.setAttribute('aria-disabled', String(!l.length)); ml.setAttribute('aria-disabled', String(!l.length));
-    $('#formItems').innerHTML = l.length ? '<ul>' + l.map(function (p) { return '<li>' + esc(p.name) + '</li>'; }).join('') + '</ul>' : 'None selected. Add products above, or describe your needs in the message.';
     Array.prototype.forEach.call(grid.querySelectorAll('.add'), function (b) {
       var on = selected.indexOf(b.dataset.id) > -1;
       b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '✓ Added' : '+ Add to enquiry';
@@ -163,6 +180,16 @@
   scrim.addEventListener('click', closeDrawer);
   $('#dForm').addEventListener('click', closeDrawer);
   $('#dList').addEventListener('click', function (e) { var b = e.target.closest('[data-rm]'); if (b) { toggle(b.dataset.rm); if (!drawer.contains(document.activeElement)) $('#drawerClose').focus(); } });
+  function setQty(id, n) { qty[id] = clampQty(n); persist(); refreshLinks(); }
+  $('#dList').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-q]'); if (!b) return;
+    setQty(b.dataset.id, (qty[b.dataset.id] || 1) + parseInt(b.dataset.q, 10));
+    b.parentNode.querySelector('input').value = qty[b.dataset.id];
+  });
+  $('#dList').addEventListener('change', function (e) {
+    var i = e.target.closest('[data-qin]'); if (!i) return;
+    setQty(i.dataset.qin, i.value); i.value = qty[i.dataset.qin];
+  });
   [$('#dWa'), $('#dMail')].forEach(function (a) { a.addEventListener('click', function (e) { if (!items().length) e.preventDefault(); }); });
   document.addEventListener('keydown', function (e) {
     if (!drawer.classList.contains('open')) return;
@@ -203,7 +230,7 @@
     return {
       name: field('name').value.trim(), company: field('company').value.trim(), email: field('email').value.trim(),
       phone: field('phone').value.trim(), message: field('message').value.trim(),
-      items: items().map(function (p) { return p.name; }), website: field('website').value
+      items: items().map(line), website: field('website').value
     };
   }
   function detailsText(d) {
