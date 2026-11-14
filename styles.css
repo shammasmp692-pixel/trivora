@@ -96,7 +96,7 @@ h1 strong{font-weight:700}
 .grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
 .pcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-s);transition:box-shadow .2s,transform .2s}
 .pcard:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
-.pcard img{width:100%;aspect-ratio:516/404;object-fit:contain;background:#fff}
+.pcard img{width:100%;aspect-ratio:9/7;object-fit:contain;background:#fff}
 .pbody{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
 .pcat{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 .pname{font-size:.98rem;font-weight:600;margin:0;line-height:1.3;color:var(--ink)}

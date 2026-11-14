@@ -21,7 +21,7 @@
   var PRODUCTS = [
     { id: 'coffee-tray', name: 'Tea & Coffee Tray Set', cat: CATS[0] },
     { id: 'bath-amenities-slippers', name: 'Bath Amenities & Slippers', cat: CATS[0] },
-    { id: 'minibar-hairdryer', name: 'Minibar & Hair Dryer', cat: CATS[0] },
+    { id: 'minibar-hairdryer', name: 'Minibar, Hair Dryer & Waste Bin', cat: CATS[0] },
     { id: 'housekeeping-trolleys', name: 'Housekeeping Trolleys', cat: CATS[1] },
     { id: 'dinnerware', name: 'Dinnerware', cat: CATS[2] },
     { id: 'glassware', name: 'Glassware', cat: CATS[2] },
@@ -36,7 +36,7 @@
     { id: 'bins-ashtrays', name: 'Bins & Ashtrays', cat: CATS[3] },
     { id: 'rope-stanchions', name: 'Rope Stanchions', cat: CATS[3] },
     { id: 'belt-barriers', name: 'Belt Barriers', cat: CATS[3] },
-    { id: 'wet-floor-signs', name: 'Wet Floor Signs', cat: CATS[4] }
+    { id: 'wet-floor-signs', name: 'Folding Floor Signs', cat: CATS[4] }
   ].map(function (p) { p.img = 'assets/images/products/' + p.id + '.jpg'; return p; });
 
   var CLIENTS = [
@@ -110,7 +110,7 @@
     });
     grid.innerHTML = list.map(function (p) {
       var on = selected.indexOf(p.id) > -1;
-      return '<li class="pcard"><img src="' + p.img + '" width="516" height="404" loading="lazy" alt="' + esc(p.name) + '">' +
+      return '<li class="pcard"><img src="' + p.img + '" width="360" height="280" loading="lazy" alt="' + esc(p.name) + '">' +
         '<div class="pbody"><span class="pcat">' + esc(p.cat) + '</span><h3 class="pname">' + esc(p.name) + '</h3>' +
         '<button type="button" class="add" data-id="' + p.id + '" aria-pressed="' + on + '">' + (on ? '✓ Added' : '+ Add to enquiry') + '</button></div></li>';
     }).join('');
