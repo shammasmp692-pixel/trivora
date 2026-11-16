@@ -2,7 +2,7 @@
 import pymupdf, io, os
 from PIL import Image
 S = 822.047 / 1368.0  # preview-pixel -> pdf points
-Z = 4
+Z = 6  # render at higher resolution before downscaling to keep crisp edges and details
 d = pymupdf.open("source/company-profile.pdf")
 
 def render(pno, box, inset=0):
@@ -15,7 +15,7 @@ def render(pno, box, inset=0):
 def save_jpg(im, path, maxw):
     if im.width > maxw:
         im = im.resize((maxw, round(im.height * maxw / im.width)), Image.LANCZOS)
-    im.save(path, "JPEG", quality=82, optimize=True, progressive=True)
+    im.save(path, "JPEG", quality=92, optimize=True, progressive=True)
     return im.size
 
 # ---- logo (page 1): alpha from red channel (white text over green)
@@ -44,12 +44,12 @@ k = 0
 for ys in r4y:
     for xs in c4x:
         im = render(3, (xs[0], ys[0], xs[1], ys[1]), inset=5)
-        print(names4[k], save_jpg(im, f"assets/images/products/{names4[k]}.jpg", 720)); k += 1
+        print(names4[k], save_jpg(im, f"assets/images/products/{names4[k]}.jpg", 1200)); k += 1
 k = 0
 for ys in r5y:
     for xs in c5x:
         im = render(4, (xs[0], ys[0], xs[1], ys[1]), inset=5)
-        print(names5[k], save_jpg(im, f"assets/images/products/{names5[k]}.jpg", 720)); k += 1
+        print(names5[k], save_jpg(im, f"assets/images/products/{names5[k]}.jpg", 1200)); k += 1
 
 # ---- clients (page 8)
 cx = [(601, 767), (782, 947), (963, 1128), (1144, 1309)]
@@ -61,7 +61,7 @@ k = 0
 for ys in cy:
     for xs in cx:
         im = render(7, (xs[0], ys[0], xs[1], ys[1]), inset=4)
-        print(cn[k], save_jpg(im, f"assets/clients/{cn[k]}.jpg", 400)); k += 1
+        print(cn[k], save_jpg(im, f"assets/clients/{cn[k]}.jpg", 600)); k += 1
 
 # ---- leaf motif (page 2 vector outlines) -> SVG
 p = d[1]
